@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Breathing Unequally · Air Pollution, Development & Health</title>
+    <link rel="stylesheet" href="./styles.css" />
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+  </head>
+  <body>
+    <div class="page-shell">
+      <header class="hero">
+        <div>
+          <p class="eyebrow">DMT322 · Information Visualization · Final Dashboard</p>
+          <h1>Breathing Unequally</h1>
+          <p class="subtitle">
+            A coordinated dashboard using World Bank WDI data to connect PM2.5
+            exposure with income, urbanization, household energy, emissions, and
+            health burden across 2010-2019.
+          </p>
+          <p id="source-note" class="source-note">Loading source metadata...</p>
+        </div>
+        <aside class="hero-aside">
+          <div class="guideline-block">
+            <span class="guideline-label">WHO annual PM2.5 guideline</span>
+            <strong>5 <small>ug/m3</small></strong>
+            <span>Used as the health-risk reference across the dashboard.</span>
+          </div>
+        </aside>
+      </header>
+
+      <section class="controls-panel" aria-label="Dashboard filters">
+        <label class="control">
+          <span>Country</span>
+          <select id="country-select"></select>
+        </label>
+        <label class="control">
+          <span>Year: <strong id="year-value"></strong></span>
+          <input id="year-slider" type="range" min="2010" max="2019" step="1" />
+        </label>
+        <label class="control">
+          <span>Region</span>
+          <select id="region-select"></select>
+        </label>
+        <label class="control">
+          <span>Income group</span>
+          <select id="income-select"></select>
+        </label>
+        <div class="control-actions">
+          <button id="play-button" type="button">Play years</button>
+          <button id="reset-view" type="button">Reset view</button>
+        </div>
+      </section>
+
+      <section class="kpi-grid" aria-label="Key indicators">
+        <article class="metric-card">
+          <p>PM2.5 exposure</p>
+          <h2 id="metric-pm25">--</h2>
+          <span id="metric-pm25-note"></span>
+        </article>
+        <article class="metric-card">
+          <p>Population above WHO</p>
+          <h2 id="metric-who">--</h2>
+          <span id="metric-who-note"></span>
+        </article>
+        <article class="metric-card">
+          <p>Air-pollution mortality</p>
+          <h2 id="metric-mortality">--</h2>
+          <span id="metric-mortality-note"></span>
+        </article>
+        <article class="metric-card">
+          <p>Clean cooking access</p>
+          <h2 id="metric-cooking">--</h2>
+          <span id="metric-cooking-note"></span>
+        </article>
+        <article class="metric-card">
+          <p>GDP per capita</p>
+          <h2 id="metric-gdp">--</h2>
+          <span id="metric-gdp-note"></span>
+        </article>
+      </section>
+
+      <section class="dashboard-grid row-a">
+        <article class="panel panel-map">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Exposure overview</p>
+              <h3>PM2.5 Mean Annual Exposure</h3>
+            </div>
+            <p class="panel-copy">Choropleth map by selected year. Click a country to update every linked panel.</p>
+          </div>
+          <svg id="map-chart" aria-label="World map of PM2.5 exposure"></svg>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Inequality lens</p>
+              <h3>Average PM2.5 by Income Group</h3>
+            </div>
+            <p class="panel-copy">Income groups reveal whether pollution burden follows development level.</p>
+          </div>
+          <svg id="income-chart" aria-label="PM2.5 by income group"></svg>
+        </article>
+      </section>
+
+      <section class="dashboard-grid row-b">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Development relationship</p>
+              <h3>GDP per Capita vs PM2.5</h3>
+            </div>
+            <p class="panel-copy">Each bubble is a country; size represents population and color shows income group.</p>
+          </div>
+          <svg id="gdp-scatter" aria-label="Scatter plot of GDP per capita and PM2.5"></svg>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Household energy and health</p>
+              <h3>Clean Cooking Access vs Mortality</h3>
+            </div>
+            <p class="panel-copy">Lower access to clean fuels is compared with air-pollution-attributed mortality.</p>
+          </div>
+          <svg id="health-scatter" aria-label="Scatter plot of clean cooking access and mortality"></svg>
+        </article>
+      </section>
+
+      <section class="dashboard-grid row-d">
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Temporal profile</p>
+              <h3>Selected Country Trend</h3>
+            </div>
+            <p class="panel-copy">PM2.5 trend against the WHO annual guideline.</p>
+          </div>
+          <svg id="trend-chart" aria-label="Selected country PM2.5 trend"></svg>
+        </article>
+
+        <article class="panel">
+          <div class="panel-header">
+            <div>
+              <p class="panel-kicker">Details on demand</p>
+              <h3>Country Development Profile</h3>
+            </div>
+          </div>
+          <div id="country-profile" class="country-profile"></div>
+        </article>
+      </section>
+
+      <footer class="page-footer">
+        <p>
+          <strong>Data</strong> · World Bank World Development Indicators, 2010-2019.
+          <strong>Dashboard</strong> · Built with D3.js v7.
+        </p>
+      </footer>
+    </div>
+
+    <div id="tooltip" class="tooltip" hidden></div>
+    <script src="./data.js"></script>
+    <script src="./app.js"></script>
+  </body>
+</html>
