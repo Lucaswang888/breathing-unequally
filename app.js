@@ -615,6 +615,7 @@ function drawTrendChart() {
 function updateCountryProfile() {
   const country = selectedCountry();
   const rec = selectedRecord();
+  const whoExceed = valueWithFallback("pm25_who_exceed_pct");
   const trend = country.absoluteChange == null ? "has incomplete trend data" : country.absoluteChange < 0 ? "improved" : country.absoluteChange > 0 ? "worsened" : "held steady";
   d3.select("#country-profile").html(`
     <h4>${country.country}</h4>
@@ -625,7 +626,7 @@ function updateCountryProfile() {
     </div>
     <div class="profile-grid">
       ${profileStat("PM2.5", fmt(rec?.pm25_mean, " ug/m3"))}
-      ${profileStat("WHO exceedance", fmtPct(rec?.pm25_who_exceed_pct))}
+      ${profileStat(whoExceed?.fallback ? `WHO exceedance (${whoExceed.year})` : "WHO exceedance", fmtPct(whoExceed?.value))}
       ${profileStat("CO2 per capita", fmt(rec?.co2_per_capita, " t"))}
       ${profileStat("Life expectancy", fmt(rec?.life_expectancy, " yrs"))}
     </div>
