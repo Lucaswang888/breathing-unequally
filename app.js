@@ -148,6 +148,21 @@ function selectedRecord(year = state.selectedYear) {
   return country?.series.find((row) => row.year === year) || null;
 }
 
+// Value for the selected year; if that year is missing, fall back to the
+// latest year that has data for this field (e.g. WHO-exceedance ends in 2017).
+function valueWithFallback(field) {
+  const country = selectedCountry();
+  if (!country) return null;
+  const selected = country.series.find((row) => row.year === state.selectedYear);
+  if (selected && selected[field] != null) {
+    return { value: selected[field], year: state.selectedYear, fallback: false };
+  }
+  const available = country.series.filter((row) => row[field] != null);
+  if (!available.length) return null;
+  const last = available.reduce((a, b) => (b.year > a.year ? b : a));
+  return { value: last[field], year: last.year, fallback: true };
+}
+
 function passesFilters(row, { ignoreIncome = false } = {}) {
   const regionOk = state.selectedRegion === "all" || row.region === state.selectedRegion;
   const incomeOk = ignoreIncome || state.selectedIncome === "all" || row.income_group === state.selectedIncome;
@@ -166,11 +181,14 @@ function updateMetrics() {
   const rec = selectedRecord();
   const country = selectedCountry();
   setMetric("#metric-pm25", "#metric-pm25-note", fmt(rec?.pm25_mean, " ug/m3"), `${state.selectedCountry} in ${state.selectedYear}`);
+  const who = valueWithFallback("pm25_who_exceed_pct");
   setMetric(
     "#metric-who",
     "#metric-who-note",
-    fmtPct(rec?.pm25_who_exceed_pct),
-    "Population exposed above WHO guideline",
+    fmtPct(who?.value),
+    who?.fallback
+      ? `Population above WHO guideline (${who.year}, latest available)`
+      : "Population exposed above WHO guideline",
   );
   setMetric(
     "#metric-mortality",
