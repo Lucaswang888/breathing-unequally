@@ -528,7 +528,7 @@ function drawTrendChart() {
   const svg = prepSvg("#trend-chart", 360);
   const width = svg.width;
   const height = svg.height;
-  const margin = { top: 24, right: 38, bottom: 46, left: 58 };
+  const margin = { top: 24, right: 92, bottom: 46, left: 58 };
   const iw = width - margin.left - margin.right;
   const ih = height - margin.top - margin.bottom;
   const country = selectedCountry();
@@ -608,8 +608,13 @@ function drawTrendChart() {
   root.append("g").attr("class", "axis").call(d3.axisLeft(y).ticks(5));
   axisLabel(root, iw / 2, ih + 38, "Year");
   axisLabel(root, -ih / 2, -42, "PM2.5 mean exposure (ug/m3)", -90);
-  root.append("text").attr("class", "annotation").attr("x", iw).attr("y", y(global.at(-1).pm25_mean) - 8).attr("text-anchor", "end").attr("fill", COLORS.teal).text("Global avg");
-  root.append("text").attr("class", "annotation").attr("x", iw).attr("y", y(series.at(-1).pm25_mean) - 8).attr("text-anchor", "end").attr("fill", COLORS.riskDeep).text(country.country);
+  // Direct end-labels placed in the right margin, beside each line's last
+  // point, so they never sit on the lines or the year-cursor.
+  const globalY = y(global.at(-1).pm25_mean);
+  let countryY = y(series.at(-1).pm25_mean);
+  if (Math.abs(countryY - globalY) < 13) countryY = globalY + 13; // avoid label collision
+  root.append("text").attr("class", "annotation").attr("x", iw + 8).attr("y", globalY + 4).attr("text-anchor", "start").attr("fill", COLORS.teal).text("Global avg");
+  root.append("text").attr("class", "annotation").attr("x", iw + 8).attr("y", countryY + 4).attr("text-anchor", "start").attr("fill", COLORS.riskDeep).text(country.country);
 }
 
 function updateCountryProfile() {
