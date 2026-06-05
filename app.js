@@ -42,6 +42,7 @@ const state = {
   zoomBehavior: null,
   isPlaying: false,
   playTimer: null,
+  brushedCodes: null,
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -126,6 +127,7 @@ function updateDashboard() {
   d3.select("#region-select").property("value", state.selectedRegion);
   d3.select("#income-select").property("value", state.selectedIncome);
 
+  state.brushedCodes = null;
   updateMetrics();
   updateMap();
   drawIncomeChart();
@@ -133,6 +135,20 @@ function updateDashboard() {
   drawHealthScatter();
   drawTrendChart();
   updateCountryProfile();
+}
+
+// Linked brushing: highlight the brushed countries across every coordinated
+// view (both scatter plots and the choropleth map) and fade the rest.
+function applyBrush(codes) {
+  state.brushedCodes = codes;
+  const active = codes && codes.size > 0;
+  d3.selectAll(".scatter-dot")
+    .classed("brushed", (d) => active && codes.has(d.code))
+    .classed("brush-faded", (d) => active && !codes.has(d.code));
+  d3.select("#map-chart")
+    .selectAll(".country-shape")
+    .classed("brushed", (feature) => active && codes.has(feature.id))
+    .classed("brush-faded", (feature) => active && !codes.has(feature.id));
 }
 
 function currentYear() {
@@ -445,6 +461,28 @@ function drawScatter(selector, rows, config) {
     .attr("class", "grid")
     .call(d3.axisLeft(y).ticks(5).tickSize(-iw).tickFormat(""))
     .call((g) => g.select(".domain").remove());
+
+  // Brushing: drag a rectangle to select a subset of countries; the brush
+  // sits below the dots so hover/click on a dot still works. Selected
+  // countries are highlighted across the map and the other scatter plot.
+  const brush = d3
+    .brush()
+    .extent([[0, 0], [iw, ih]])
+    .on("brush end", (event) => {
+      if (!event.selection) return applyBrush(null);
+      const [[bx0, by0], [bx1, by1]] = event.selection;
+      const codes = new Set(
+        data
+          .filter((d) => {
+            const cx = x(d[config.xField]);
+            const cy = y(d[config.yField]);
+            return cx >= bx0 && cx <= bx1 && cy >= by0 && cy <= by1;
+          })
+          .map((d) => d.code),
+      );
+      applyBrush(codes);
+    });
+  root.append("g").attr("class", "brush").call(brush);
 
   root
     .selectAll(".scatter-dot")

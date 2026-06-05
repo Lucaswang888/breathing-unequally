@@ -417,6 +417,30 @@ svg {
   opacity: 1;
 }
 
+/* Linked brushing */
+.scatter-dot.brush-faded,
+.country-shape.brush-faded {
+  opacity: 0.12;
+}
+
+.scatter-dot.brushed {
+  fill-opacity: 0.95;
+  opacity: 1;
+  stroke: var(--ink);
+  stroke-width: 1.4px;
+}
+
+.country-shape.brushed {
+  stroke: var(--ink);
+  stroke-width: 1.2px;
+}
+
+.brush .selection {
+  fill: rgba(29, 42, 37, 0.06);
+  stroke: rgba(29, 42, 37, 0.45);
+  stroke-dasharray: 3 3;
+}
+
 .empty-state {
   fill: var(--muted);
   font-size: 13px;
